@@ -1,0 +1,6 @@
+{
+  "server": "smtp.server.com",
+  "port": 465,
+  "user": "robot@email.com",
+  "password": "robot_password"
+}
