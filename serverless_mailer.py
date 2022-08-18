@@ -19,7 +19,7 @@ def lambda_handler(event, context):
   is_error, data = parse_request_data(event)
   if is_error: return data
 
-  # send_email(account, data['to_email'], data['subject'], data['content'])
+  send_email(account, data['to_email'], data['subject'], data['content'])
 
   return {
     'statusCode': 200,
