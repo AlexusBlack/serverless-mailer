@@ -21,10 +21,18 @@ def lambda_handler(event, context):
 
   # send_email(account, data['to_email'], data['subject'], data['content'])
 
+  return {
+    'statusCode': 200,
+    'headers': {
+      'Access-Control-Allow-Origin': event['headers']['origin']
+      },
+    'body': 'Email sent'
+  }
+
 def parse_request_data(event):
   try:
     data = json.loads(event['body'])
-  except JSONDecodeError:
+  except json.JSONDecodeError:
     return True, {
       'statusCode': 400,
       'body': json.dumps('Request body is not a valid JSON')
@@ -49,9 +57,9 @@ def parse_request_data(event):
     to_email = settings['Default Destination Email'].strip()
 
   return False, {
-    to_email: to_email,
-    subject: data['subject'],
-    content: data['conten']
+    'to_email': to_email,
+    'subject': data['subject'],
+    'content': data['content']
   }
 
 def find_request_format_error(event):
@@ -67,9 +75,9 @@ def find_request_format_error(event):
       'body': json.dumps('This http method is not allowed.')
     }
 
-  if event['body'] is None:
+  if 'body' not in event or event['body'] is None:
     return {
-      'statusCode': 400,
+      'statusCode': 418,
       'body': json.dumps('Missing request body')
     }
 
