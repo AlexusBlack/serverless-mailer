@@ -14,7 +14,7 @@ allowed_emails = settings['Allowed Destination Emails'].strip().split("\n")
 
 # AWS compatible handler
 def lambda_handler(event, context):
-  the_lambda_handler(event, context)
+  return the_lambda_handler(event, context)
 
 # Use this for testing, pass dry run
 def the_lambda_handler(event, context, dry_run = False):
@@ -32,7 +32,7 @@ def the_lambda_handler(event, context, dry_run = False):
     'headers': {
       'Access-Control-Allow-Origin': event['headers']['origin']
       },
-    'body': 'Email sent'
+    'body': json.dumps('Email sent')
   }
 
 def parse_request_data(event):
@@ -75,7 +75,7 @@ def find_request_format_error(event):
       'body': json.dumps('You are not allowed to access this resource')
     }
 
-  if event['httpMethod'] != 'POST':
+  if event['requestContext']['http']['method'] != 'POST':
     return {
       'statusCode': 405,
       'body': json.dumps('This http method is not allowed.')
