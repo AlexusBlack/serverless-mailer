@@ -1,6 +1,6 @@
 import unittest
 
-from serverless_mailer import lambda_handler
+from serverless_mailer import the_lambda_handler as lambda_handler
 
 class ServerlessMailerTests(unittest.TestCase):
   def test_no_origin(self):

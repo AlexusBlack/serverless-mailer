@@ -12,7 +12,12 @@ settings = config['Settings']
 allowed_origins = settings['Allowed Origins'].strip().split("\n")
 allowed_emails = settings['Allowed Destination Emails'].strip().split("\n")
 
-def lambda_handler(event, context, dry_run = False):
+# AWS compatible handler
+def lambda_handler(event, context):
+  the_lambda_handler(event, context)
+
+# Use this for testing, pass dry run
+def the_lambda_handler(event, context, dry_run = False):
   request_format_error = find_request_format_error(event)
   if request_format_error != None: return request_format_error
 
