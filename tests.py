@@ -7,14 +7,14 @@ class ServerlessMailerTests(unittest.TestCase):
     response = lambda_handler({
       'headers': {},
       'httpMethod': 'GET'
-    }, None)
+    }, None, True)
     self.assertEqual(response['statusCode'], 403)
 
   def test_bad_origin(self):
     response = lambda_handler({
       'headers': { 'origin': 'https://google.com' },
       'httpMethod': 'GET'
-    }, None)
+    }, None, True)
     self.assertEqual(response['statusCode'], 403)
 
 
@@ -22,28 +22,28 @@ class ServerlessMailerTests(unittest.TestCase):
     response = lambda_handler({
       'headers': { 'origin': 'http://localhost:3000' },
       'httpMethod': 'GET'
-    }, None)
+    }, None, True)
     self.assertNotEqual(response['statusCode'], 403)
 
   def test_wrong_method(self):
     response = lambda_handler({
       'headers': { 'origin': 'http://localhost:3000' },
       'httpMethod': 'GET'
-    }, None)
+    }, None, True)
     self.assertEqual(response['statusCode'], 405)
 
   def test_correct_method(self):
     response = lambda_handler({
       'headers': { 'origin': 'http://localhost:3000' },
       'httpMethod': 'POST',
-    }, None)
+    }, None, True)
     self.assertNotEqual(response['statusCode'], 405)
 
   def test_missing_body(self):
     response = lambda_handler({
       'headers': { 'origin': 'http://localhost:3000' },
       'httpMethod': 'POST',
-    }, None)
+    }, None, True)
     self.assertEqual(response['statusCode'], 418)
 
   def test_null_body(self):
@@ -51,7 +51,7 @@ class ServerlessMailerTests(unittest.TestCase):
       'headers': { 'origin': 'http://localhost:3000' },
       'httpMethod': 'POST',
       'body': None
-    }, None)
+    }, None, True)
     self.assertEqual(response['statusCode'], 418)
 
   def test_present_body(self):
@@ -59,7 +59,7 @@ class ServerlessMailerTests(unittest.TestCase):
       'headers': { 'origin': 'http://localhost:3000' },
       'httpMethod': 'POST',
       'body': '{}'
-    }, None)
+    }, None, True)
     self.assertNotEqual(response['statusCode'], 418)
 
   def test_invalid_json(self):
@@ -67,7 +67,7 @@ class ServerlessMailerTests(unittest.TestCase):
       'headers': { 'origin': 'http://localhost:3000' },
       'httpMethod': 'POST',
       'body': '{/%'
-    }, None)
+    }, None, True)
     self.assertEqual(response['statusCode'], 400)
     self.assertEqual(response['body'], '"Request body is not a valid JSON"')
 
@@ -76,7 +76,7 @@ class ServerlessMailerTests(unittest.TestCase):
       'headers': { 'origin': 'http://localhost:3000' },
       'httpMethod': 'POST',
       'body': '{"content": "hello world"}'
-    }, None)
+    }, None, True)
     self.assertEqual(response['statusCode'], 400)
     self.assertEqual(response['body'], '"Request body missing subject or content"')
 
@@ -85,7 +85,7 @@ class ServerlessMailerTests(unittest.TestCase):
       'headers': { 'origin': 'http://localhost:3000' },
       'httpMethod': 'POST',
       'body': '{"subject": "your extended warranty"}'
-    }, None)
+    }, None, True)
     self.assertEqual(response['statusCode'], 400)
     self.assertEqual(response['body'], '"Request body missing subject or content"')
 
@@ -94,7 +94,7 @@ class ServerlessMailerTests(unittest.TestCase):
       'headers': { 'origin': 'http://localhost:3000' },
       'httpMethod': 'POST',
       'body': '{"subject": "your extended warranty", "content": "hello world"}'
-    }, None)
+    }, None, True)
     self.assertNotEqual(response['statusCode'], 400)
 
   def test_bad_recipent(self):
@@ -102,7 +102,7 @@ class ServerlessMailerTests(unittest.TestCase):
       'headers': { 'origin': 'http://localhost:3000' },
       'httpMethod': 'POST',
       'body': '{"to": "bill@microsoft.com", "subject": "your extended warranty","content": "hello world"}'
-    }, None)
+    }, None, True)
     self.assertEqual(response['statusCode'], 400)
     self.assertEqual(response['body'], '"The recipient is not allowed"')
 
@@ -111,7 +111,7 @@ class ServerlessMailerTests(unittest.TestCase):
       'headers': { 'origin': 'http://localhost:3000' },
       'httpMethod': 'POST',
       'body': '{"to": "test@email.com", "subject": "your extended warranty","content": "hello world"}'
-    }, None)
+    }, None, True)
     self.assertNotEqual(response['statusCode'], 400)
 
   def test_correct_send_response(self):
@@ -119,7 +119,7 @@ class ServerlessMailerTests(unittest.TestCase):
       'headers': { 'origin': 'http://localhost:3000' },
       'httpMethod': 'POST',
       'body': '{"to": "test@email.com", "subject": "your extended warranty","content": "hello world"}'
-    }, None)
+    }, None, True)
     self.assertEqual(response['statusCode'], 200)
     self.assertEqual(response['headers']['Access-Control-Allow-Origin'], 'http://localhost:3000')
 
