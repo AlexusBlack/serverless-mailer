@@ -32,12 +32,22 @@ class ServerlessMailerTests(unittest.TestCase):
     }, None, True)
     self.assertEqual(response['statusCode'], 405)
 
-  def test_correct_method(self):
+  def test_correct_post_method(self):
     response = lambda_handler({
       'headers': { 'origin': 'http://localhost:3000' },
       'requestContext': { 'http': { 'method': 'POST' } },
     }, None, True)
     self.assertNotEqual(response['statusCode'], 405)
+
+  def test_correct_options_method(self):
+    response = lambda_handler({
+      'headers': { 'origin': 'http://localhost:3000' },
+      'requestContext': { 'http': { 'method': 'OPTIONS' } },
+      'body': ''
+    }, None, True)
+    self.assertEqual(response['statusCode'], 200)
+    self.assertEqual(response['headers']['Access-Control-Allow-Origin'], 'http://localhost:3000')
+    self.assertEqual(response['headers']['Allow'], 'OPTIONS, POST')
 
   def test_missing_body(self):
     response = lambda_handler({
