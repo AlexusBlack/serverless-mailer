@@ -21,6 +21,16 @@ def the_lambda_handler(event, context, dry_run = False):
   request_format_error = find_request_format_error(event)
   if request_format_error != None: return request_format_error
 
+  if is_options_request(event):
+    return {
+      'statusCode': 200,
+      'headers': {
+        'Access-Control-Allow-Origin': event['headers']['origin'],
+        'Allow': 'OPTIONS, POST'
+      },
+      'body': ''
+    }
+
   is_error, data = parse_request_data(event)
   if is_error: return data
 
@@ -75,7 +85,7 @@ def find_request_format_error(event):
       'body': json.dumps('You are not allowed to access this resource')
     }
 
-  if event['requestContext']['http']['method'] != 'POST':
+  if event['requestContext']['http']['method'] not in ['POST', 'OPTIONS']:
     return {
       'statusCode': 405,
       'body': json.dumps('This http method is not allowed.')
@@ -97,6 +107,8 @@ def is_allowed_origin(event):
 
   return False
 
+def is_options_request(event):
+  return event['requestContext']['http']['method'] == 'OPTIONS'
 
 def send_email(account, to_email, subject, content):
   # Create a secure SSL context
