@@ -46,6 +46,7 @@ class ServerlessMailerTests(unittest.TestCase):
     }, None, True)
     self.assertEqual(response['statusCode'], 200)
     self.assertEqual(response['headers']['Access-Control-Allow-Origin'], 'http://localhost:3000')
+    self.assertEqual(response['headers']['Access-Control-Allow-Headers'], '*')
     self.assertEqual(response['headers']['Allow'], 'OPTIONS, POST')
 
   def test_missing_body(self):

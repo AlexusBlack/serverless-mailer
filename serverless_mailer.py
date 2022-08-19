@@ -26,6 +26,7 @@ def the_lambda_handler(event, context, dry_run = False):
       'statusCode': 200,
       'headers': {
         'Access-Control-Allow-Origin': event['headers']['origin'],
+        'Access-Control-Allow-Headers': '*',
         'Allow': 'OPTIONS, POST'
       },
       'body': ''
