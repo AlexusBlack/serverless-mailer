@@ -1,0 +1,76 @@
+<script src="serverless_mailer.js"></script>
+
+<div class="serverless-submit__box">
+  <h1>Test Form</h1>
+  <div class="serverless-submit__success"></div>
+
+  <form class="serverless-submit">
+    <label>
+      Name:
+      <input name="name" type="text" required>
+    </label>
+    <label>
+      Email:
+      <input name="email" type="email" required>
+    </label>
+    <label>
+      Message:
+      <textarea name="message" required></textarea>
+    </label>
+    <div class="serverless-submit__error"></div>
+    <button type="submit">Send</button>
+  </form>
+<div>
+
+<script>
+  serverless_mailer.setup({
+    apiUrl: 'https://gblslv2ixl5amw6z2bexp3mjcq0hnahs.lambda-url.us-east-1.on.aws/'
+  });
+  const forms = Array.from(document.querySelectorAll('.serverless-submit__box'));
+  forms.forEach(form => {
+    const successEl = form.querySelector('.serverless-submit__success');
+    const errorEl = form.querySelector('.serverless-submit__error');
+    serverless_mailer.handleForm(
+      form,
+      'Test form message',
+      () => successEl.textContent = 'Message sent!',
+      error => errorEl.textContent = error 
+    );
+  });
+</script>
+
+<style>
+:root {
+  font-family: sans-serif;
+}
+
+.serverless-submit__box {
+  max-width: 600px;
+  margin: 50px auto;
+}
+
+.serverless-submit {
+  display: flex;
+  flex-direction: column;
+}
+
+.serverless-submit input,
+.serverless-submit textarea {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.serverless-submit__error {
+  color: red;
+  font-weight: bold;
+}
+
+.serverless-submit__success {
+  color: green;
+  font-weight: bold;
+}
+
+.serverless-submit__success:not(:empty) + .serverless-submit {
+  display: none;
+}
+</style>
