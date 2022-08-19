@@ -91,6 +91,9 @@ def find_request_format_error(event):
       'body': json.dumps('This http method is not allowed.')
     }
 
+  # No need to check for body in options request
+  if is_options_request(event): return None
+
   if 'body' not in event or event['body'] is None:
     return {
       'statusCode': 418,

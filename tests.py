@@ -43,7 +43,6 @@ class ServerlessMailerTests(unittest.TestCase):
     response = lambda_handler({
       'headers': { 'origin': 'http://localhost:3000' },
       'requestContext': { 'http': { 'method': 'OPTIONS' } },
-      'body': ''
     }, None, True)
     self.assertEqual(response['statusCode'], 200)
     self.assertEqual(response['headers']['Access-Control-Allow-Origin'], 'http://localhost:3000')
