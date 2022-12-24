@@ -133,5 +133,14 @@ class ServerlessMailerTests(unittest.TestCase):
     self.assertEqual(response['statusCode'], 200)
     self.assertEqual(response['headers']['Access-Control-Allow-Origin'], 'http://localhost:3000')
 
+  def test_correct_autorespond(self):
+    response = lambda_handler({
+      'headers': { 'origin': 'http://localhost:3000' },
+      'requestContext': { 'http': { 'method': 'POST' } },
+      'body': '{"to": "test@email.com", "subject": "your extended warranty","content": "hello world", "email": "alexusblack@gmail.com", "name": "Alex", "autorespond": "http://localhost:3000/upload/autorespond.ini"}'
+    }, None, True)
+    self.assertEqual(response['statusCode'], 200)
+    self.assertEqual(response['headers']['Access-Control-Allow-Origin'], 'http://localhost:3000')
+
 if __name__ == '__main__':
   unittest.main()

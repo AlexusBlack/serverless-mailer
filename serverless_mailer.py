@@ -1,7 +1,9 @@
 import smtplib
+import io
 import ssl
 import json
 import configparser
+from urllib.request import urlopen
 
 config = configparser.ConfigParser()
 config.read('settings.ini')
@@ -38,6 +40,10 @@ def the_lambda_handler(event, context, dry_run = False):
   if not dry_run:
     send_email(account, data['to_email'], data['subject'], data['content'])
 
+  if 'autorespond' in data:
+    autorespond_data = parse_autorespond_data(data)
+    send_email(account, autorespond_data['to_email'], autorespond_data['subject'], autorespond_data['content'], autorespond_data['from_email'])
+
   return {
     'statusCode': 200,
     'headers': {
@@ -45,6 +51,30 @@ def the_lambda_handler(event, context, dry_run = False):
       },
     'body': json.dumps('Email sent')
   }
+
+def parse_autorespond_data(data):
+  response = urlopen(data['autorespond'])
+  content = response.read().decode("utf-8")
+  buf = io.StringIO(content)
+  autorespond_config = configparser.ConfigParser()
+  autorespond_config.read_file(buf)
+
+  result = {
+    'to_email': autorespond_config['Autoresponse']['To-Email'],
+    'from_email': autorespond_config['Autoresponse']['From-Email'],
+    'subject': autorespond_config['Autoresponse']['Subject'],
+    'content': autorespond_config['Autoresponse']['Content'],
+  }
+  for key in result:
+    result[key] = replace_template_fields(result[key], data['raw_data']);
+  return result
+
+def replace_template_fields(text, data):
+  if 'email' in data: text = text.replace('{email}', data['email'])
+  if 'name' in data: text = text.replace('{name}', data['name'])
+  if 'first_name' in data: text = text.replace('{first_name}', data['first_name'])
+  if 'last_name' in data: text = text.replace('{last_name}', data['last_name'])
+  return text
 
 def parse_request_data(event):
   try:
@@ -73,11 +103,18 @@ def parse_request_data(event):
   else:
     to_email = settings['Default Destination Email'].strip()
 
-  return False, {
+  result = {
     'to_email': to_email,
     'subject': data['subject'],
-    'content': data['content']
+    'content': data['content'],
+    'raw_data': data
   }
+
+  if 'autorespond' in data:
+    if url_from_allowed_origin(data['autorespond']):
+      result['autorespond'] = data['autorespond']
+
+  return False, result
 
 def find_request_format_error(event):
   if not is_allowed_origin(event):
@@ -111,10 +148,16 @@ def is_allowed_origin(event):
 
   return False
 
+def url_from_allowed_origin(url):
+  for origin in allowed_origins:
+    if url.startswith(origin): return True
+  return False
+
 def is_options_request(event):
   return event['requestContext']['http']['method'] == 'OPTIONS'
 
-def send_email(account, to_email, subject, content):
+def send_email(account, to_email, subject, content, from_email = None):
+  if from_email == None: from_email = account['User']
   # Create a secure SSL context
   context = ssl.create_default_context()
 
@@ -125,4 +168,4 @@ def send_email(account, to_email, subject, content):
     message = message + "\n\n\n"
     message = message + content
 
-    server.sendmail(account['user'], to_email, message)
+    server.sendmail(from_email, to_email, message)
