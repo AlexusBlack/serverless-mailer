@@ -10,13 +10,19 @@
 
     handleForm: function(formEl, subject, onSuccess = null, onError = null) {
       formEl.addEventListener('submit', (e) => {
+        const data = { subject };
+
         e.preventDefault();
         let content = '';
         const fields = Array.from(formEl.querySelectorAll('input, textarea'));
-        fields.forEach(field => content += field.name + ': ' + field.value + "\r\n");
-        serverless_mailer.send({
-          subject, content
-        }, onSuccess, onError);
+        fields.forEach(field => {
+          data[field.name] = field.value;
+          content += field.name + ': ' + field.value + "\r\n";
+        });
+
+        data['content'] = content;
+
+        serverless_mailer.send(data, onSuccess, onError);
       });
     },
 
