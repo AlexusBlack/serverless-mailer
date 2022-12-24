@@ -8,7 +8,7 @@
       config = Object.assign(config, args);
     },
 
-    handleForm: function(formEl, subject, onSuccess = null, onError = null) {
+    handleForm: function(formEl, subject = 'Form Message', onSuccess = null, onError = null) {
       formEl.addEventListener('submit', (e) => {
         const data = { subject };
 
@@ -46,4 +46,11 @@
       }
     }
   };
+
+  const apiMeta = document.querySelector('meta[name=serverless-api-url]');
+  if(apiMeta !== null) {
+    serverless_mailer.setup({apiUrl: apiMeta.content});
+  }
+  const forms = Array.from(document.querySelectorAll('form.serverless_mailer'));
+  forms.forEach(form => serverless_mailer.handleForm(form));
 })();
