@@ -52,5 +52,11 @@
     serverless_mailer.setup({apiUrl: apiMeta.content});
   }
   const forms = Array.from(document.querySelectorAll('form.serverless_mailer'));
-  forms.forEach(form => serverless_mailer.handleForm(form));
+  forms.forEach(form => {
+    let onSuccess = null;
+    let onFail = null;
+    if('successMsg' in form.dataset) onSuccess = () => alert(form.dataset.successMsg);
+    if('failMsg' in form.dataset) onFail = () => alert(form.dataset.failMsg);
+    serverless_mailer.handleForm(form, null, onSuccess, onFail);
+  });
 })();
